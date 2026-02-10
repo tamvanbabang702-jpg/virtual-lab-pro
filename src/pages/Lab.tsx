@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { chemicals, findReaction, getIndicatorColor, type Chemical } from '@/data/chemicals';
 import { simulateReaction, type SimulationResult } from '@/services/chemEngine';
 import { FlaskConical, Thermometer, Droplets, Wind, AlertTriangle, Beaker, TestTubes, Flame } from 'lucide-react';
+import DraggableChemical from '@/components/lab/DraggableChemical';
+import BeakerDropZone from '@/components/lab/BeakerDropZone';
 
 const tools = [
   { id: 'beaker', name: 'Beaker', icon: Beaker },
@@ -17,10 +19,17 @@ export default function LabPage() {
   const [reacting, setReacting] = useState(false);
   const [activeTool, setActiveTool] = useState<string>('beaker');
 
-  const selectChemical = (chem: Chemical) => {
-    if (!selectedChemicals[0]) {
+  const selectChemical = (chem: Chemical, slot?: 0 | 1) => {
+    // If already selected, ignore
+    if (selectedChemicals[0]?.id === chem.id || selectedChemicals[1]?.id === chem.id) return;
+
+    if (slot !== undefined) {
+      const updated: [Chemical | null, Chemical | null] = [...selectedChemicals];
+      updated[slot] = chem;
+      setSelectedChemicals(updated);
+    } else if (!selectedChemicals[0]) {
       setSelectedChemicals([chem, null]);
-    } else if (!selectedChemicals[1] && chem.id !== selectedChemicals[0]?.id) {
+    } else if (!selectedChemicals[1]) {
       setSelectedChemicals([selectedChemicals[0], chem]);
     }
   };
@@ -86,38 +95,13 @@ export default function LabPage() {
 
         <div className="flex items-end gap-3 justify-center min-h-[140px]">
           {/* Chemical 1 */}
-          <div className="flex flex-col items-center gap-2">
-            <div
-              className={`w-16 h-24 rounded-b-xl rounded-t-sm border-2 transition-all duration-300 flex items-end justify-center overflow-hidden ${
-                selectedChemicals[0] ? 'border-primary/50' : 'border-border'
-              }`}
-            >
-              {selectedChemicals[0] && (
-                <div
-                  className="w-full transition-all duration-500 rounded-b-lg"
-                  style={{
-                    height: `${(volumes[0] / 20) * 100}%`,
-                    backgroundColor: selectedChemicals[0].color,
-                    opacity: 0.8,
-                  }}
-                />
-              )}
-            </div>
-            <p className="text-[10px] text-muted-foreground text-center w-16 truncate">
-              {selectedChemicals[0]?.formula || 'Select'}
-            </p>
-            {selectedChemicals[0] && (
-              <input
-                type="range"
-                min={1}
-                max={20}
-                value={volumes[0]}
-                onChange={(e) => setVolumes([Number(e.target.value), volumes[1]])}
-                className="w-16 accent-primary"
-              />
-            )}
-            <span className="text-[10px] text-muted-foreground">{volumes[0]} ml</span>
-          </div>
+          <BeakerDropZone
+            chemical={selectedChemicals[0]}
+            volume={volumes[0]}
+            onVolume={(v) => setVolumes([v, volumes[1]])}
+            onDrop={(chem) => selectChemical(chem, 0)}
+            label="Drag chemical"
+          />
 
           {/* Plus / Reaction */}
           <div className="flex flex-col items-center gap-2 pb-8">
@@ -131,38 +115,13 @@ export default function LabPage() {
           </div>
 
           {/* Chemical 2 */}
-          <div className="flex flex-col items-center gap-2">
-            <div
-              className={`w-16 h-24 rounded-b-xl rounded-t-sm border-2 transition-all duration-300 flex items-end justify-center overflow-hidden ${
-                selectedChemicals[1] ? 'border-primary/50' : 'border-border'
-              }`}
-            >
-              {selectedChemicals[1] && (
-                <div
-                  className="w-full transition-all duration-500 rounded-b-lg"
-                  style={{
-                    height: `${(volumes[1] / 20) * 100}%`,
-                    backgroundColor: selectedChemicals[1].color,
-                    opacity: 0.8,
-                  }}
-                />
-              )}
-            </div>
-            <p className="text-[10px] text-muted-foreground text-center w-16 truncate">
-              {selectedChemicals[1]?.formula || 'Select'}
-            </p>
-            {selectedChemicals[1] && (
-              <input
-                type="range"
-                min={1}
-                max={20}
-                value={volumes[1]}
-                onChange={(e) => setVolumes([volumes[0], Number(e.target.value)])}
-                className="w-16 accent-primary"
-              />
-            )}
-            <span className="text-[10px] text-muted-foreground">{volumes[1]} ml</span>
-          </div>
+          <BeakerDropZone
+            chemical={selectedChemicals[1]}
+            volume={volumes[1]}
+            onVolume={(v) => setVolumes([volumes[0], v])}
+            onDrop={(chem) => selectChemical(chem, 1)}
+            label="Drag chemical"
+          />
         </div>
 
         {/* Action Buttons */}
@@ -262,18 +221,11 @@ export default function LabPage() {
               {chems.map(chem => {
                 const isSelected = selectedChemicals[0]?.id === chem.id || selectedChemicals[1]?.id === chem.id;
                 return (
-                  <button
+                  <DraggableChemical
                     key={chem.id}
-                    onClick={() => selectChemical(chem)}
-                    disabled={isSelected}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      isSelected
-                        ? 'bg-primary/20 text-primary neon-border border'
-                        : 'glass-card text-secondary-foreground hover:border-primary/30 border border-transparent'
-                    } disabled:opacity-50`}
-                  >
-                    {chem.formula}
-                  </button>
+                    chemical={chem}
+                    isSelected={isSelected}
+                  />
                 );
               })}
             </div>
