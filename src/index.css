@@ -177,3 +177,47 @@
   background-size: 200% 100%;
   animation: shimmer 2s linear infinite;
 }
+
+@keyframes bubble {
+  0% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(-80px) scale(0.2); opacity: 0; }
+}
+.animate-bubble {
+  animation: bubble 2s ease-out infinite;
+}
+
+@keyframes colorFlash {
+  0% { opacity: 0; }
+  30% { opacity: 0.25; }
+  70% { opacity: 0.15; }
+  100% { opacity: 0; }
+}
+.animate-color-flash {
+  animation: colorFlash 1.5s ease-in-out forwards;
+}
+
+@keyframes heatGlow {
+  0%, 100% { box-shadow: inset 0 0 20px hsl(0 80% 50% / 0); }
+  50% { box-shadow: inset 0 0 30px hsl(0 80% 50% / 0.2); }
+}
+.animate-heat-glow {
+  animation: heatGlow 2s ease-in-out infinite;
+}
+
+@keyframes precipitate {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translateY(60px); opacity: 0.3; }
+}
+.animate-precipitate {
+  animation: precipitate 2.5s ease-in forwards;
+}
+
+@keyframes steam {
+  0% { transform: translateY(0) scale(1); opacity: 0.4; }
+  100% { transform: translateY(-50px) scale(2); opacity: 0; }
+}
+.animate-steam {
+  animation: steam 3s ease-out infinite;
+}
