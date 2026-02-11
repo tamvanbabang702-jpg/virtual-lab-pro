@@ -91,3 +91,46 @@ export function playWarning() {
     osc.stop(t + 0.15);
   }
 }
+
+/** Hissing gas release */
+export function playHiss(duration = 1.5) {
+  const ctx = getCtx();
+  const buf = noiseBuffer(ctx, duration);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'highpass';
+  filter.frequency.setValueAtTime(3000, ctx.currentTime);
+  filter.frequency.linearRampToValueAtTime(5000, ctx.currentTime + duration * 0.3);
+  filter.frequency.linearRampToValueAtTime(2500, ctx.currentTime + duration);
+  filter.Q.value = 1;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.05);
+  gain.gain.setValueAtTime(0.12, ctx.currentTime + duration * 0.6);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+  src.connect(filter).connect(gain).connect(ctx.destination);
+  src.start();
+}
+
+/** Sizzle for exothermic reactions — crackling noise bursts */
+export function playSizzle(duration = 1.8) {
+  const ctx = getCtx();
+  const crackleCount = Math.floor(duration * 15);
+  for (let i = 0; i < crackleCount; i++) {
+    const t = ctx.currentTime + Math.random() * duration;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(1500 + Math.random() * 3000, t);
+    osc.frequency.exponentialRampToValueAtTime(200 + Math.random() * 300, t + 0.03);
+    gain.gain.setValueAtTime(0.04 + Math.random() * 0.04, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03 + Math.random() * 0.02);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.06);
+  }
+}
