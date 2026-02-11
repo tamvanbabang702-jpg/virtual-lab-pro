@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { chemicals, findReaction, getIndicatorColor, type Chemical } from '@/data/chemicals';
 import { simulateReaction, type SimulationResult } from '@/services/chemEngine';
 import { FlaskConical, Thermometer, Droplets, Wind, AlertTriangle, Beaker, TestTubes, Flame } from 'lucide-react';
 import DraggableChemical from '@/components/lab/DraggableChemical';
 import BeakerDropZone from '@/components/lab/BeakerDropZone';
 import ReactionEffects from '@/components/lab/ReactionEffects';
+import { playBubble, playPour, playReactionComplete } from '@/services/soundEffects';
 
 const tools = [
   { id: 'beaker', name: 'Beaker', icon: Beaker },
@@ -21,8 +22,9 @@ export default function LabPage() {
   const [activeTool, setActiveTool] = useState<string>('beaker');
 
   const selectChemical = (chem: Chemical, slot?: 0 | 1) => {
-    // If already selected, ignore
     if (selectedChemicals[0]?.id === chem.id || selectedChemicals[1]?.id === chem.id) return;
+
+    playPour(0.8);
 
     if (slot !== undefined) {
       const updated: [Chemical | null, Chemical | null] = [...selectedChemicals];
@@ -39,6 +41,7 @@ export default function LabPage() {
     if (!selectedChemicals[0] || !selectedChemicals[1]) return;
     setReacting(true);
     setResult(null);
+    playBubble(8);
 
     setTimeout(() => {
       const res = simulateReaction(
@@ -47,6 +50,7 @@ export default function LabPage() {
       );
       setResult(res);
       setReacting(false);
+      playReactionComplete();
     }, 1500);
   };
 
