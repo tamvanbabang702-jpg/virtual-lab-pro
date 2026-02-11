@@ -4,6 +4,7 @@ import { simulateReaction, type SimulationResult } from '@/services/chemEngine';
 import { FlaskConical, Thermometer, Droplets, Wind, AlertTriangle, Beaker, TestTubes, Flame } from 'lucide-react';
 import DraggableChemical from '@/components/lab/DraggableChemical';
 import BeakerDropZone from '@/components/lab/BeakerDropZone';
+import ReactionEffects from '@/components/lab/ReactionEffects';
 
 const tools = [
   { id: 'beaker', name: 'Beaker', icon: Beaker },
@@ -90,7 +91,8 @@ export default function LabPage() {
       </div>
 
       {/* Reaction Zone */}
-      <div className="glass-card p-4 rounded-xl space-y-4">
+      <div className="glass-card p-4 rounded-xl space-y-4 relative">
+        <ReactionEffects result={result} reacting={reacting} />
         <h2 className="text-sm font-display font-semibold text-foreground">Reaction Zone</h2>
 
         <div className="flex items-end gap-3 justify-center min-h-[140px]">
