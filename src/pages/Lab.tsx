@@ -5,7 +5,7 @@ import { FlaskConical, Thermometer, Droplets, Wind, AlertTriangle, Beaker, TestT
 import DraggableChemical from '@/components/lab/DraggableChemical';
 import BeakerDropZone from '@/components/lab/BeakerDropZone';
 import ReactionEffects from '@/components/lab/ReactionEffects';
-import { playBubble, playPour, playReactionComplete } from '@/services/soundEffects';
+import { playBubble, playPour, playReactionComplete, playHiss, playSizzle } from '@/services/soundEffects';
 
 const tools = [
   { id: 'beaker', name: 'Beaker', icon: Beaker },
@@ -51,6 +51,8 @@ export default function LabPage() {
       setResult(res);
       setReacting(false);
       playReactionComplete();
+      if (res.effects.gasProduced) playHiss();
+      if (res.effects.exothermic) playSizzle();
     }, 1500);
   };
 
