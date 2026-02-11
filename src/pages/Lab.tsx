@@ -233,6 +233,7 @@ export default function LabPage() {
                     key={chem.id}
                     chemical={chem}
                     isSelected={isSelected}
+                    onClick={() => selectChemical(chem)}
                   />
                 );
               })}
